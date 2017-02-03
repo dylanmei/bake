@@ -34,6 +34,14 @@ function repeat {
     printf "text was: '%s'\n" "$text"
 }
 
+#. A function with dependencies. params: a, b
+function has_depends {
+    bake_params a b
+    bake_depends dep1 dep2
+
+    bake_info "has_depends"
+}
+
 function on_task_not_found {
     echo "Task not found $1"
 }
