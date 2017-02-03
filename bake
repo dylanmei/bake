@@ -177,15 +177,15 @@ include () {
 invoke () {
     local invoked
     for f in "$@"; do
+        set +ue
         eval "invoked=\$$1_invoked"
+        set -ue
         if [ ! "$invoked" == "1" ]; then
             eval $1_invoked=1
             "$@"
         fi
     done
 }
-
-
 
 # Converts name=value arguments to vars
 #
@@ -198,10 +198,22 @@ function bake_params {
   for param in "$@"; do
     local val=$(eval echo \${$param:-})
     if [ -z "$val" ]; then
-      bake_error "$param parameter is missing." && exit 1
+      bake_error "'$param' parameter is missing." && exit 1
     fi
   done
   set -ue
+}
+
+# Assures that a set of function
+#
+# @example
+#   bake_depends "build"
+#
+# @param... Names of targets to invoke
+function bake_depends {
+    for target in $@; do
+        invoke $target
+    done
 }
 
 # Prints a log message with no color.
@@ -231,7 +243,8 @@ bake_error () {
 # @param $1 action
 # @param $2 description
 bake_info () {
-    echo -e "${C_CYAN}      $1\t${C_ICYAN}${2}${C_OFF}"
+    local description=${2:-}
+    echo -e "${C_CYAN}      $1\t${C_ICYAN}${description}${C_OFF}"
 }
 
 
@@ -250,7 +263,8 @@ bake_ok () {
 # @param $1 Exit code.
 # @param $2 [optional] Message.
 bake_exit() {
-    [[ -n $2 ]] && echo $2
+    local message=${2:-}
+    [[ -n $message ]] && echo $message
     exit $1
 }
 
@@ -275,6 +289,7 @@ outdated() {
 
     return 1
 }
+
 
 
 # Main entry point into program.
@@ -357,6 +372,7 @@ scriptdir() {
     eval $__resultvar="$(cd `dirname "$1"` && cd -P "$__real" && pwd )"
 }
 
+
 bake_app=`basename $0`
 this_bake="$(cd `dirname $0` && pwd)/${bake_app}"
 case "$1" in
@@ -385,6 +401,7 @@ case "$1" in
             # setting the bake_app displays usage with the script name instead of `bake`
             bake_app=`basename $1`
             bakefile=$1
+            # TODO: attempt to make this local so that globals are not overwritten
             bakefile_dir=$PWD
             shift
             main "$@"
@@ -405,4 +422,3 @@ case "$1" in
         fi
         ;;
 esac
-

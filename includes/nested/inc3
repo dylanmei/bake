@@ -8,3 +8,16 @@ function derp {
 yet_another_private_function() {
   bake_ok "called another private derp function..."
 }
+
+#. dep 1. params: a, b
+function dep1 {
+  bake_params a b
+  bake_info "dep1: a=$a b=$b"
+  invoke dep2
+}
+
+#. dep 1. params: a, b
+function dep2 {
+  bake_params a b
+  bake_info "dep2: a=$a b=$b"
+}

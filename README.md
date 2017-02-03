@@ -114,6 +114,11 @@ Includes external script(s).
     example: include "includes/*"
  - _Note: use `$bake` to invoke bake from an included task retaining the original top level directory_
 
+Declare dependendent tasks that are `invoke`'d.
+    bake_depends <task>...
+
+ - _Note: `bake_depends` can be called at any point within a task._
+
 
 Run a dynamic task when task `$1` is not found. For example, to run
 a test as the first argument to `bake`, add this to `Bakefile`
